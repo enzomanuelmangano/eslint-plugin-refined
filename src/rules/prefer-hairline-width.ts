@@ -8,7 +8,7 @@ const createRule = ESLintUtils.RuleCreator(
 type MessageIds = 'useHairlineWidth';
 type Options = [];
 
-export default createRule<Options, MessageIds>({
+export = createRule<Options, MessageIds>({
   name: 'prefer-hairline-width',
   meta: {
     type: 'suggestion',

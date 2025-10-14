@@ -8,7 +8,7 @@ const createRule = ESLintUtils.RuleCreator(
 type MessageIds = 'preferBoxShadow';
 type Options = [];
 
-export default createRule<Options, MessageIds>({
+export = createRule<Options, MessageIds>({
   name: 'prefer-box-shadow',
   meta: {
     type: 'suggestion',

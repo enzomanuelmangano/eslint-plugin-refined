@@ -8,7 +8,7 @@ const createRule = ESLintUtils.RuleCreator(
 type MessageIds = 'missingBorderCurve';
 type Options = [];
 
-export default createRule<Options, MessageIds>({
+export = createRule<Options, MessageIds>({
   name: 'border-radius-with-curve',
   meta: {
     type: 'suggestion',

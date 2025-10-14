@@ -1,12 +1,9 @@
-import borderRadiusWithCurve from './rules/border-radius-with-curve.js';
-import preferHairlineWidth from './rules/prefer-hairline-width.js';
-import preferBoxShadow from './rules/prefer-box-shadow.js';
+import borderRadiusWithCurve = require('./rules/border-radius-with-curve');
+import preferHairlineWidth = require('./rules/prefer-hairline-width');
+import preferBoxShadow = require('./rules/prefer-box-shadow');
 import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
 
 const plugin = {
@@ -39,4 +36,4 @@ const plugin = {
   },
 };
 
-export default plugin;
+export = plugin;

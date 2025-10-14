@@ -2,14 +2,14 @@
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["ESNext"],
-    "target": "ESNext",
-    "module": "NodeNext",
+    "target": "ES2020",
+    "module": "CommonJS",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
 
     // Output options
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Node",
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
