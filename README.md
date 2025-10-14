@@ -9,6 +9,7 @@ This plugin provides rules to help you write better React Native styles:
 - **border-radius-with-curve**: Enforces using `borderCurve: 'continuous'` when borderRadius properties are used
 - **prefer-hairline-width**: Suggests using `StyleSheet.hairlineWidth` for border widths less than 1
 - **prefer-box-shadow**: Suggests using `boxShadow` instead of individual shadow properties
+- **spring-config-consistency**: Enforces consistent spring physics parameters in `withSpring` calls
 
 ## Installation
 
@@ -137,6 +138,53 @@ const styles = StyleSheet.create({
 });
 ```
 
+### spring-config-consistency
+
+Enforces that `withSpring` calls either have all three spring physics parameters (`mass`, `damping`, `stiffness`) or none of them. This ensures consistent spring animations and prevents incomplete configurations. The rule ignores `withSpring` calls that use `duration` or `dampingRatio` as these are alternative spring configuration modes.
+
+#### Examples
+
+**Bad:**
+```jsx
+// Only mass specified - missing damping and stiffness
+const value = withSpring(100, {
+  mass: 1,
+});
+
+// Only damping and stiffness - missing mass
+const value = withSpring(100, {
+  damping: 10,
+  stiffness: 100,
+});
+```
+
+**Good:**
+```jsx
+// All three spring params specified
+const value = withSpring(100, {
+  mass: 1,
+  damping: 10,
+  stiffness: 100,
+});
+
+// No spring physics params (uses defaults)
+const value = withSpring(100, {
+  overshootClamping: true,
+});
+
+// Using alternative spring config mode (ignored by rule)
+const value = withSpring(100, {
+  duration: 1000,
+});
+
+// Using dampingRatio mode (ignored by rule)
+const value = withSpring(100, {
+  dampingRatio: 0.5,
+});
+```
+
+**Note:** The rule provides auto-fix that adds missing parameters with sensible defaults (`mass: 1`, `damping: 10`, `stiffness: 100`).
+
 ## Configuration
 
 ### Recommended Config
@@ -148,6 +196,7 @@ rules: {
   'refined/border-radius-with-curve': 'warn',
   'refined/prefer-hairline-width': 'warn',
   'refined/prefer-box-shadow': 'warn',
+  'refined/spring-config-consistency': 'warn',
 }
 ```
 
@@ -160,6 +209,7 @@ rules: {
   'refined/border-radius-with-curve': 'error',
   'refined/prefer-hairline-width': 'error',
   'refined/prefer-box-shadow': 'error',
+  'refined/spring-config-consistency': 'error',
 }
 ```
 

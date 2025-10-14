@@ -1,6 +1,8 @@
 import borderRadiusWithCurve = require('./rules/border-radius-with-curve');
 import preferHairlineWidth = require('./rules/prefer-hairline-width');
 import preferBoxShadow = require('./rules/prefer-box-shadow');
+import springConfigConsistency = require('./rules/spring-config-consistency');
+import avoidTouchableOpacity = require('./rules/avoid-touchable-opacity');
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -15,6 +17,8 @@ const plugin = {
     'border-radius-with-curve': borderRadiusWithCurve,
     'prefer-hairline-width': preferHairlineWidth,
     'prefer-box-shadow': preferBoxShadow,
+    'spring-config-consistency': springConfigConsistency,
+    'avoid-touchable-opacity': avoidTouchableOpacity,
   },
   configs: {
     recommended: {
