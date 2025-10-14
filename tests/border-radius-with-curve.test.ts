@@ -42,8 +42,76 @@ ruleTester.run('border-radius-with-curve', rule, {
         };
       `,
     },
+    // Circular border radius (>= 9999) - no borderCurve needed
+    {
+      code: `
+        const styles = {
+          borderRadius: 9999,
+          width: 50,
+          height: 50
+        };
+      `,
+    },
+    // Circular border radius (half of width) - no borderCurve needed
+    {
+      code: `
+        const styles = {
+          borderRadius: 25,
+          width: 50,
+          height: 50
+        };
+      `,
+    },
+    // Circular border radius (half of height) - no borderCurve needed
+    {
+      code: `
+        const styles = {
+          borderRadius: 30,
+          width: 50,
+          height: 60
+        };
+      `,
+    },
   ],
   invalid: [
+    // Circular border radius WITH borderCurve - should be reported as unnecessary
+    {
+      code: `
+        const styles = {
+          borderRadius: 9999,
+          borderCurve: 'continuous',
+          width: 50,
+          height: 50
+        };
+      `,
+      errors: [{ messageId: 'unnecessaryBorderCurve' }],
+      output: `
+        const styles = {
+          borderRadius: 9999,
+          width: 50,
+          height: 50
+        };
+      `,
+    },
+    // Circular border radius (half of width) WITH borderCurve - unnecessary
+    {
+      code: `
+        const styles = {
+          borderRadius: 25,
+          borderCurve: 'continuous',
+          width: 50,
+          height: 50
+        };
+      `,
+      errors: [{ messageId: 'unnecessaryBorderCurve' }],
+      output: `
+        const styles = {
+          borderRadius: 25,
+          width: 50,
+          height: 50
+        };
+      `,
+    },
     // Has borderRadius but no borderCurve
     {
       code: `

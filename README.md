@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
 
 ### prefer-box-shadow
 
-Suggests using `boxShadow` instead of individual shadow properties (`shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius`) for better performance and simpler syntax.
+Suggests using `boxShadow` instead of individual shadow properties (`shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius`, `elevation`) for better performance and simpler syntax. The rule automatically converts shadow properties to the CSS-like `boxShadow` format and removes `elevation` (Android-specific) as `boxShadow` now provides cross-platform shadow support.
 
 #### Examples
 
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 ```
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
 ```jsx
 const styles = StyleSheet.create({
   container: {
-    boxShadow: '0 2px 3.84px rgba(0, 0, 0, 0.25)',
+    boxShadow: '0 2 3.84 rgba(0, 0, 0, 0.25)',
   },
 });
 ```
