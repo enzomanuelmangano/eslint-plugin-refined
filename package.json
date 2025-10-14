@@ -7,7 +7,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "bun test"
+    "test": "bun test",
+    "prepublishOnly": "bun test && bun run build",
+    "release": "./scripts/release.sh"
   },
   "keywords": [
     "eslint",
