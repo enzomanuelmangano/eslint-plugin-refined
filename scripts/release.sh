@@ -12,8 +12,12 @@ echo -e "${BLUE}🚀 Release Script${NC}\n"
 CURRENT_VERSION=$(node -p "require('./package.json').version")
 echo -e "Current version: ${GREEN}${CURRENT_VERSION}${NC}"
 
-# Ask for new version
-read -p "Enter new version (e.g., 0.0.2, 0.1.0, 1.0.0): " NEW_VERSION
+# Get version from argument or ask
+if [ -n "$1" ]; then
+  NEW_VERSION=$1
+else
+  read -p "Enter new version (e.g., 0.0.2, 0.1.0, 1.0.0): " NEW_VERSION
+fi
 
 if [ -z "$NEW_VERSION" ]; then
   echo "❌ Version cannot be empty"
