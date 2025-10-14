@@ -1,0 +1,33 @@
+{
+  "name": "eslint-plugin-refined",
+  "version": "0.0.1",
+  "description": "ESLint plugin for refined React Native styles",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "bun test"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "react-native",
+    "styles",
+    "lint"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/eslint": "^9.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/rule-tester": "^8.0.0",
+    "@typescript-eslint/utils": "^8.0.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=8.0.0"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ]
+}
