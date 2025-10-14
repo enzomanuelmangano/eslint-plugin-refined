@@ -1,6 +1,6 @@
-import borderRadiusWithCurve from './rules/border-radius-with-curve';
-import preferHairlineWidth from './rules/prefer-hairline-width';
-import preferBoxShadow from './rules/prefer-box-shadow';
+import borderRadiusWithCurve from './rules/border-radius-with-curve.js';
+import preferHairlineWidth from './rules/prefer-hairline-width.js';
+import preferBoxShadow from './rules/prefer-box-shadow.js';
 
 const plugin = {
   meta: {
