@@ -6,23 +6,37 @@ const createRule = ESLintUtils.RuleCreator(
 );
 
 type MessageIds = 'useHairlineWidth';
-type Options = [];
+type Options = [{ threshold?: number }?];
 
 export = createRule<Options, MessageIds>({
   name: 'prefer-hairline-width',
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer StyleSheet.hairlineWidth for border widths less than 1',
+      description: 'Prefer StyleSheet.hairlineWidth for border widths less than a threshold (default 0.3)',
     },
     fixable: 'code',
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          threshold: {
+            type: 'number',
+            minimum: 0,
+            maximum: 1,
+            default: 0.3,
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       useHairlineWidth: 'Use StyleSheet.hairlineWidth instead of {{value}} for consistent thin borders across devices',
     },
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{ threshold: 0.3 }],
+  create(context, options) {
+    const threshold = options[0]?.threshold ?? 0.3;
     const borderWidthProperties = new Set([
       'borderWidth',
       'borderTopWidth',
@@ -43,10 +57,10 @@ export = createRule<Options, MessageIds>({
         if (node.key.type === 'Identifier' && borderWidthProperties.has(node.key.name)) {
           const value = node.value;
 
-          // Check if the value is a number less than 1
+          // Check if the value is a number less than threshold
           if (isNumericLiteral(value)) {
             const numValue = value.value;
-            if (numValue < 1 && numValue > 0) {
+            if (numValue <= threshold && numValue > 0) {
               context.report({
                 node: value,
                 messageId: 'useHairlineWidth',

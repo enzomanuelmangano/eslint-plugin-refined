@@ -47,13 +47,38 @@ ruleTester.run('prefer-hairline-width', rule, {
         };
       `,
     },
-  ],
-  invalid: [
-    // Using 0.5
+    // Using 0.5 (above default threshold of 0.3)
     {
       code: `
         const styles = {
           borderWidth: 0.5
+        };
+      `,
+    },
+    // Using 0.4 (above default threshold of 0.3)
+    {
+      code: `
+        const styles = {
+          borderWidth: 0.4
+        };
+      `,
+    },
+    // Using 0.2 with custom threshold of 0.1 (above threshold, should be valid)
+    {
+      code: `
+        const styles = {
+          borderWidth: 0.2
+        };
+      `,
+      options: [{ threshold: 0.1 }],
+    },
+  ],
+  invalid: [
+    // Using 0.3 (exactly at threshold)
+    {
+      code: `
+        const styles = {
+          borderWidth: 0.3
         };
       `,
       errors: [{ messageId: 'useHairlineWidth' }],
@@ -88,6 +113,51 @@ ruleTester.run('prefer-hairline-width', rule, {
       output: `
         const styles = {
           borderBottomWidth: StyleSheet.hairlineWidth
+        };
+      `,
+    },
+    // Using 0.5 with custom threshold of 1
+    {
+      code: `
+        const styles = {
+          borderWidth: 0.5
+        };
+      `,
+      options: [{ threshold: 1 }],
+      errors: [{ messageId: 'useHairlineWidth' }],
+      output: `
+        const styles = {
+          borderWidth: StyleSheet.hairlineWidth
+        };
+      `,
+    },
+    // Using 0.5 with custom threshold of 0.5
+    {
+      code: `
+        const styles = {
+          borderWidth: 0.5
+        };
+      `,
+      options: [{ threshold: 0.5 }],
+      errors: [{ messageId: 'useHairlineWidth' }],
+      output: `
+        const styles = {
+          borderWidth: StyleSheet.hairlineWidth
+        };
+      `,
+    },
+    // Using 0.05 with custom threshold of 0.1
+    {
+      code: `
+        const styles = {
+          borderWidth: 0.05
+        };
+      `,
+      options: [{ threshold: 0.1 }],
+      errors: [{ messageId: 'useHairlineWidth' }],
+      output: `
+        const styles = {
+          borderWidth: StyleSheet.hairlineWidth
         };
       `,
     },
