@@ -6,10 +6,16 @@ An ESLint plugin for refined React Native styles.
 
 This plugin provides rules to help you write better React Native styles:
 
+### Enabled by Default (in recommended/strict configs)
+
 - **border-radius-with-curve**: Enforces using `borderCurve: 'continuous'` when borderRadius properties are used
-- **prefer-hairline-width**: Suggests using `StyleSheet.hairlineWidth` for border widths less than 1
+- **prefer-hairline-width**: Suggests using `StyleSheet.hairlineWidth` for border widths less than a threshold (configurable)
 - **prefer-box-shadow**: Suggests using `boxShadow` instead of individual shadow properties
+
+### Opt-in Rules (must be explicitly enabled)
+
 - **spring-config-consistency**: Enforces consistent spring physics parameters in `withSpring` calls
+- **avoid-touchable-opacity**: Discourages usage of `TouchableOpacity` component
 
 ## Installation
 
@@ -88,7 +94,11 @@ const styles = StyleSheet.create({
 
 ### prefer-hairline-width
 
-Suggests using `StyleSheet.hairlineWidth` for border widths less than 1 to ensure consistent thin borders across devices.
+Suggests using `StyleSheet.hairlineWidth` for border widths less than or equal to a configurable threshold (default: 0.3) to ensure consistent thin borders across devices.
+
+#### Options
+
+- `threshold` (number, default: 0.3): The maximum border width value that should trigger this rule. Values must be between 0 and 1.
 
 #### Examples
 
@@ -96,7 +106,7 @@ Suggests using `StyleSheet.hairlineWidth` for border widths less than 1 to ensur
 ```jsx
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 0.5,
+    borderWidth: 0.3, // <= default threshold
   },
 });
 ```
@@ -108,6 +118,32 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
   },
 });
+
+// Or use a value above the threshold
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: 0.5, // > default threshold, won't trigger
+  },
+});
+```
+
+#### Configuration
+
+```js
+// Use default threshold of 0.3
+rules: {
+  'refined/prefer-hairline-width': 'warn',
+}
+
+// Custom threshold: flag all values <= 0.5
+rules: {
+  'refined/prefer-hairline-width': ['warn', { threshold: 0.5 }],
+}
+
+// Strict mode: flag all values < 1
+rules: {
+  'refined/prefer-hairline-width': ['warn', { threshold: 1 }],
+}
 ```
 
 ### prefer-box-shadow
@@ -185,32 +221,98 @@ const value = withSpring(100, {
 
 **Note:** The rule provides auto-fix that adds missing parameters with sensible defaults (`mass: 1`, `damping: 10`, `stiffness: 100`).
 
+**Important:** This rule is opt-in and not included in the recommended or strict configs. Enable it explicitly if you want to enforce spring config consistency:
+
+```js
+rules: {
+  'refined/spring-config-consistency': 'warn',
+}
+```
+
+### avoid-touchable-opacity
+
+Discourages usage of `TouchableOpacity` component in favor of more performant alternatives.
+
+#### Examples
+
+**Bad:**
+```jsx
+<TouchableOpacity onPress={handlePress}>
+  <Text>Press me</Text>
+</TouchableOpacity>
+```
+
+**Good:**
+```jsx
+<Pressable onPress={handlePress}>
+  <Text>Press me</Text>
+</Pressable>
+
+// Or use any other alternative
+<TouchableWithoutFeedback onPress={handlePress}>
+  <View>
+    <Text>Press me</Text>
+  </View>
+</TouchableWithoutFeedback>
+```
+
+**Important:** This rule is opt-in and not included in the recommended or strict configs. Enable it explicitly if you want to discourage TouchableOpacity:
+
+```js
+rules: {
+  'refined/avoid-touchable-opacity': 'warn',
+}
+```
+
 ## Configuration
 
 ### Recommended Config
 
-Enables all rules with warning level:
+Enables core rules with warning level:
 
 ```js
 rules: {
   'refined/border-radius-with-curve': 'warn',
   'refined/prefer-hairline-width': 'warn',
   'refined/prefer-box-shadow': 'warn',
-  'refined/spring-config-consistency': 'warn',
 }
 ```
 
 ### Strict Config
 
-Enables all rules with error level:
+Enables core rules with error level:
 
 ```js
 rules: {
   'refined/border-radius-with-curve': 'error',
   'refined/prefer-hairline-width': 'error',
   'refined/prefer-box-shadow': 'error',
-  'refined/spring-config-consistency': 'error',
 }
+```
+
+### Custom Configuration
+
+You can enable opt-in rules and configure rule options:
+
+```js
+export default [
+  {
+    plugins: {
+      refined,
+    },
+    rules: {
+      // Use recommended rules
+      ...refined.configs.recommended.rules,
+
+      // Customize prefer-hairline-width threshold
+      'refined/prefer-hairline-width': ['warn', { threshold: 0.5 }],
+
+      // Enable opt-in rules
+      'refined/spring-config-consistency': 'warn',
+      'refined/avoid-touchable-opacity': 'warn',
+    },
+  },
+];
 ```
 
 ## Example Project
