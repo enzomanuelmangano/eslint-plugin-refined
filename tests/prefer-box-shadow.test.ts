@@ -40,6 +40,42 @@ ruleTester.run('prefer-box-shadow', rule, {
         };
       `,
     },
+    // Dynamic shadow values with interpolate (should NOT convert)
+    {
+      code: `
+        const contentStyle = useAnimatedStyle(() => ({
+          shadowColor: 'black',
+          shadowOffset: {
+            width: 0,
+            height: interpolate(progress.value, [0, 1], [20, 10])
+          },
+          shadowOpacity: interpolate(progress.value, [0, 1], [0.05, 0.15]),
+          shadowRadius: interpolate(progress.value, [0, 1], [10, 20]),
+        }));
+      `,
+    },
+    // Dynamic shadowColor (should NOT convert)
+    {
+      code: `
+        const styles = {
+          shadowColor: theme.colors.shadow,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+        };
+      `,
+    },
+    // Dynamic shadowOpacity (should NOT convert)
+    {
+      code: `
+        const styles = {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: opacity.value,
+          shadowRadius: 3.84,
+        };
+      `,
+    },
   ],
   invalid: [
     // Using shadowColor

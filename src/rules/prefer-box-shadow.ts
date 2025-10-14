@@ -152,6 +152,23 @@ export = createRule<Options, MessageIds>({
       return `${offsetX} ${offsetY} ${radius} ${finalColor}`;
     }
 
+    function hasNonLiteralValue(node: TSESTree.Node): boolean {
+      // Check if a value is non-literal (e.g., function call, identifier, expression)
+      if (node.type === 'Literal') {
+        return false;
+      }
+      if (node.type === 'ObjectExpression') {
+        // Check all properties in the object
+        for (const prop of node.properties) {
+          if (prop.type === 'Property' && hasNonLiteralValue(prop.value)) {
+            return true;
+          }
+        }
+        return false;
+      }
+      return true; // CallExpression, Identifier, etc.
+    }
+
     function checkStyleObject(node: TSESTree.ObjectExpression) {
       const shadowProps = new Map<string, TSESTree.Property>();
       let firstShadowProp: TSESTree.Property | null = null;
@@ -173,6 +190,15 @@ export = createRule<Options, MessageIds>({
       // Only report if shadowColor is present
       if (!shadowProps.has('shadowColor') || !firstShadowProp) {
         return;
+      }
+
+      // Check if any shadow property has a non-literal value (e.g., dynamic/animated values)
+      // If so, skip this rule entirely as we can't convert to static boxShadow
+      for (const [propName, prop] of shadowProps) {
+        if (propName !== 'elevation' && hasNonLiteralValue(prop.value)) {
+          // Skip conversion for dynamic shadow values
+          return;
+        }
       }
 
       // Extract shadow values
