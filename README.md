@@ -162,6 +162,18 @@ rules: {
 }
 ```
 
+## Example Project
+
+Check out the `example/` directory for a working Expo project that demonstrates all the rules in action.
+
+```bash
+cd example
+npm install
+npm run lint        # See the warnings
+npm run lint:fix    # Auto-fix violations
+npm start          # Run the app
+```
+
 ## Development
 
 ### Install Dependencies
