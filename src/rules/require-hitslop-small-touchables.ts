@@ -27,7 +27,7 @@ export = createRule<Options, MessageIds>({
           minSize: {
             type: 'number',
             minimum: 0,
-            default: 35,
+            default: 40,
           },
         },
         additionalProperties: false,
@@ -37,9 +37,9 @@ export = createRule<Options, MessageIds>({
       requireHitSlop: 'Touchable element is {{width}}x{{height}}pt (recommended minimum: {{minSize}}pt). Consider adding hitSlop for better accessibility.',
     },
   },
-  defaultOptions: [{ minSize: 35 }],
+  defaultOptions: [{ minSize: 40 }],
   create(context, options) {
-    const minSize = options[0]?.minSize ?? 35;
+    const minSize = options[0]?.minSize ?? 40;
 
     // Track StyleSheet.create() calls in the file
     const styleSheets = new Map<string, Map<string, StyleProperties>>();
