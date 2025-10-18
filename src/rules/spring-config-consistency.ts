@@ -6,24 +6,41 @@ const createRule = ESLintUtils.RuleCreator(
 );
 
 type MessageIds = 'incompleteSpringConfig' | 'addMissingParams';
-type Options = [];
+type Options = [{ reanimatedVersion?: 'v3' | 'v4' }?];
 
 export = createRule<Options, MessageIds>({
   name: 'spring-config-consistency',
   meta: {
     type: 'problem',
     docs: {
-      description: 'Enforce that withSpring either has all spring physics params (mass, damping, stiffness) or none of them',
+      description: 'Enforce that spring animations (withSpring and Transition.springify) either have all spring physics params (mass, damping, stiffness) or none of them',
     },
     fixable: 'code',
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          reanimatedVersion: {
+            type: 'string',
+            enum: ['v3', 'v4'],
+            default: 'v4',
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
-      incompleteSpringConfig: 'withSpring config must include all three spring physics params (mass, damping, stiffness) or none of them. Currently missing: {{missing}}',
+      incompleteSpringConfig: 'Spring animation must include all three spring physics params (mass, damping, stiffness) or none of them. Currently missing: {{missing}}',
       addMissingParams: 'Add missing spring physics parameters',
     },
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{ reanimatedVersion: 'v4' }],
+  create(context, options) {
+    const reanimatedVersion = options[0]?.reanimatedVersion ?? 'v4';
+
+    // Track the root of transition chains we've already processed
+    const processedChains = new WeakSet<TSESTree.Node>();
+
     function checkWithSpringCall(node: TSESTree.CallExpression) {
       // Check if this is a withSpring call
       if (node.callee.type !== 'Identifier' || node.callee.name !== 'withSpring') {
@@ -97,12 +114,10 @@ export = createRule<Options, MessageIds>({
             const indent = configStartLine?.match(/^(\s*)/)?.[1] || '';
             const propIndent = indent + '  ';
 
-            // Default values for missing params
-            const defaults: Record<string, number> = {
-              mass: 1,
-              damping: 10,
-              stiffness: 100,
-            };
+            // Default values for missing params based on Reanimated version
+            const defaults: Record<string, number> = reanimatedVersion === 'v3'
+              ? { mass: 4, damping: 10, stiffness: 100 }
+              : { mass: 4, damping: 120, stiffness: 900 };
 
             // Build the properties to add
             const propsToAdd = missing.map(param => `${param}: ${defaults[param]}`).join(`,\n${propIndent}`);
@@ -122,9 +137,119 @@ export = createRule<Options, MessageIds>({
       }
     }
 
+    function checkTransitionSpringify(node: TSESTree.CallExpression) {
+      // Check if this is a .springify() call on a Transition
+      // Pattern: LinearTransition.springify()
+      if (node.callee.type !== 'MemberExpression' ||
+          node.callee.property.type !== 'Identifier' ||
+          node.callee.property.name !== 'springify') {
+        return;
+      }
+
+      // Check if the object is a transition type (ends with "Transition")
+      let isTransition = false;
+      if (node.callee.object.type === 'Identifier' &&
+          node.callee.object.name.endsWith('Transition')) {
+        isTransition = true;
+      }
+
+      if (!isTransition) {
+        return;
+      }
+
+      // Find the end of the chain (walk up from springify())
+      let current: TSESTree.Node = node;
+      let chainEnd: TSESTree.CallExpression = node;
+
+      // Walk up to find the end of the method chain
+      // Pattern: node is part of MemberExpression, which is callee of CallExpression
+      while (current.parent) {
+        // Check if parent is a MemberExpression that uses this call as its object
+        if (current.parent.type === 'MemberExpression' &&
+            current.parent.object === current &&
+            current.parent.parent &&
+            current.parent.parent.type === 'CallExpression' &&
+            current.parent.parent.callee === current.parent) {
+          chainEnd = current.parent.parent;
+          current = current.parent.parent;
+        } else {
+          break;
+        }
+      }
+
+      // Don't process the same chain multiple times
+      if (processedChains.has(chainEnd)) {
+        return;
+      }
+      processedChains.add(chainEnd);
+
+      // Collect all chained methods
+      const chainedMethods = new Map<string, TSESTree.CallExpression>();
+      let currentNode: TSESTree.Node = chainEnd;
+
+      while (currentNode.type === 'CallExpression') {
+        if (currentNode.callee.type === 'MemberExpression' &&
+            currentNode.callee.property.type === 'Identifier') {
+          const methodName = currentNode.callee.property.name;
+          if (methodName === 'mass' || methodName === 'damping' || methodName === 'stiffness') {
+            chainedMethods.set(methodName, currentNode);
+          }
+        }
+
+        // Move down the chain
+        if (currentNode.callee.type === 'MemberExpression') {
+          currentNode = currentNode.callee.object;
+        } else {
+          break;
+        }
+      }
+
+      const hasMass = chainedMethods.has('mass');
+      const hasDamping = chainedMethods.has('damping');
+      const hasStiffness = chainedMethods.has('stiffness');
+
+      const springParamsCount = [hasMass, hasDamping, hasStiffness].filter(Boolean).length;
+
+      // If we have some but not all params, report an error
+      if (springParamsCount > 0 && springParamsCount < 3) {
+        const missing: string[] = [];
+        if (!hasMass) missing.push('mass');
+        if (!hasDamping) missing.push('damping');
+        if (!hasStiffness) missing.push('stiffness');
+
+        // Default values for missing params based on Reanimated version
+        const defaults: Record<string, number> = reanimatedVersion === 'v3'
+          ? { mass: 4, damping: 10, stiffness: 100 }
+          : { mass: 4, damping: 120, stiffness: 900 };
+
+        context.report({
+          node: chainEnd,
+          messageId: 'incompleteSpringConfig',
+          data: {
+            missing: missing.join(', '),
+          },
+          fix(fixer) {
+            const sourceCode = context.sourceCode;
+
+            // Build the missing method calls
+            const missingCalls = missing.map(param => `.${param}(${defaults[param]})`).join('');
+
+            // Insert after the last token of the chain
+            const lastToken = sourceCode.getLastToken(chainEnd);
+            if (!lastToken) {
+              return null;
+            }
+
+            return fixer.insertTextAfter(lastToken, missingCalls);
+          },
+        });
+      }
+    }
+
     return {
       CallExpression(node) {
         checkWithSpringCall(node);
+        checkTransitionSpringify(node);
       },
     };
   },

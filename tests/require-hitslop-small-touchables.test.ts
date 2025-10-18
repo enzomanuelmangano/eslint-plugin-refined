@@ -98,6 +98,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </Pressable>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <Pressable onPress={handlePress} style={{ width: 30, height: 30 }} hitSlop={5}>
+          <Text>Press me</Text>
+        </Pressable>
+      `,
     },
     // Small width only
     {
@@ -107,6 +112,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </TouchableOpacity>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <TouchableOpacity onPress={handlePress} style={{ width: 30 }} hitSlop={5}>
+          <Text>Press me</Text>
+        </TouchableOpacity>
+      `,
     },
     // Small height only
     {
@@ -116,6 +126,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </TouchableOpacity>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <TouchableOpacity onPress={handlePress} style={{ height: 30 }} hitSlop={5}>
+          <Text>Press me</Text>
+        </TouchableOpacity>
+      `,
     },
     // StyleSheet reference with small size
     {
@@ -128,6 +143,14 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </Pressable>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const styles = StyleSheet.create({
+          icon: { width: 24, height: 24 }
+        });
+        <Pressable onPress={handlePress} style={styles.icon} hitSlop={8}>
+          <Icon name="close" />
+        </Pressable>
+      `,
     },
     // Custom component with onPress
     {
@@ -137,6 +160,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </IconButton>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <IconButton onPress={handlePress} style={{ width: 32, height: 32 }} hitSlop={4}>
+          <Icon name="settings" />
+        </IconButton>
+      `,
     },
     // View used as touchable
     {
@@ -146,6 +174,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </View>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <View onPress={handlePress} style={{ width: 20, height: 20 }} hitSlop={10}>
+          <Icon name="x" />
+        </View>
+      `,
     },
     // onLongPress handler
     {
@@ -155,6 +188,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </Pressable>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <Pressable onLongPress={handleLongPress} style={{ width: 30, height: 30 }} hitSlop={5}>
+          <Text>Long press me</Text>
+        </Pressable>
+      `,
     },
     // onTouchStart handler
     {
@@ -164,6 +202,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </View>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <View onTouchStart={handleTouch} style={{ width: 25, height: 25 }} hitSlop={8}>
+          <Text>Touch me</Text>
+        </View>
+      `,
     },
     // Style array with small size
     {
@@ -177,6 +220,15 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </Pressable>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const styles = StyleSheet.create({
+          base: { borderRadius: 8 },
+          small: { width: 30, height: 30 }
+        });
+        <Pressable onPress={handlePress} style={[styles.base, styles.small]} hitSlop={5}>
+          <Icon name="heart" />
+        </Pressable>
+      `,
     },
     // Style array with inline override
     {
@@ -189,6 +241,14 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </Pressable>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const styles = StyleSheet.create({
+          base: { width: 50, height: 50 }
+        });
+        <Pressable onPress={handlePress} style={[styles.base, { width: 20, height: 20 }]} hitSlop={10}>
+          <Icon name="close" />
+        </Pressable>
+      `,
     },
     // Custom threshold
     {
@@ -199,6 +259,11 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
       `,
       options: [{ minSize: 48 }],
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        <Pressable onPress={handlePress} style={{ width: 40, height: 40 }} hitSlop={4}>
+          <Text>Press me</Text>
+        </Pressable>
+      `,
     },
     // Named stylesheet (not 'styles')
     {
@@ -211,6 +276,14 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </Pressable>
       `,
       errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const buttonStyles = StyleSheet.create({
+          small: { width: 28, height: 28 }
+        });
+        <Pressable onPress={handlePress} style={buttonStyles.small} hitSlop={6}>
+          <Icon name="menu" />
+        </Pressable>
+      `,
     },
   ],
 });

@@ -20,6 +20,7 @@ export = createRule<Options, MessageIds>({
     docs: {
       description: 'Require hitSlop on small touchable elements to improve tap target size',
     },
+    fixable: 'code',
     schema: [
       {
         type: 'object',
@@ -214,6 +215,13 @@ export = createRule<Options, MessageIds>({
         // Check if either dimension is below threshold
         if ((width !== undefined && width < minSize) ||
             (height !== undefined && height < minSize)) {
+
+          // Calculate required hitSlop to reach minSize
+          // hitSlop adds padding on all sides, so total touchable area = size + (hitSlop * 2)
+          const widthHitSlop = width !== undefined ? Math.max(0, Math.ceil((minSize - width) / 2)) : 0;
+          const heightHitSlop = height !== undefined ? Math.max(0, Math.ceil((minSize - height) / 2)) : 0;
+          const requiredHitSlop = Math.max(widthHitSlop, heightHitSlop);
+
           context.report({
             node,
             messageId: 'requireHitSlop',
@@ -221,6 +229,21 @@ export = createRule<Options, MessageIds>({
               width: width?.toString() ?? 'unknown',
               height: height?.toString() ?? 'unknown',
               minSize: minSize.toString(),
+            },
+            fix(fixer) {
+              const sourceCode = context.sourceCode;
+
+              // Find the last attribute
+              const lastAttr = attributes[attributes.length - 1];
+              if (!lastAttr) {
+                return null;
+              }
+
+              // Insert hitSlop after the last attribute
+              return fixer.insertTextAfter(
+                lastAttr,
+                ` hitSlop={${requiredHitSlop}}`
+              );
             },
           });
         }
