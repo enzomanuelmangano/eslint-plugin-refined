@@ -88,7 +88,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       errors: [{ messageId: 'preferBoxShadow' }],
       output: `
         const styles = {
-          boxShadow: '0 0 0 #000',
+          boxShadow: '0px 0px 0px #000',
         };
       `,
     },
@@ -105,7 +105,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       errors: [{ messageId: 'preferBoxShadow' }],
       output: `
         const styles = {
-          boxShadow: '0 2 3.84 rgba(0, 0, 0, 0.25)',
+          boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
         };
       `,
     },
@@ -120,7 +120,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       errors: [{ messageId: 'preferBoxShadow' }],
       output: `
         const styles = {
-          boxShadow: '0 0 10 rgba(0, 0, 0, 0.1)',
+          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
         };
       `,
     },
@@ -138,7 +138,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       errors: [{ messageId: 'preferBoxShadow' }],
       output: `
         const styles = {
-          boxShadow: '0 3 6 rgba(0, 0, 0, 0.23)',
+          boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.23)',
         };
       `,
     },
@@ -158,7 +158,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       output: `
         const styles = {
           padding: 10,
-          boxShadow: '0 2 3.84 rgba(0, 0, 0, 0.25)',
+          boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
           margin: 5
         };
       `,
@@ -176,7 +176,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       errors: [{ messageId: 'preferBoxShadow' }],
       output: `
         const styles = {
-          boxShadow: '0 0 10 rgba(0, 0, 0, 0.1)',
+          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
         };
       `,
     },
@@ -193,7 +193,7 @@ ruleTester.run('prefer-box-shadow', rule, {
       errors: [{ messageId: 'preferBoxShadow' }],
       output: `
         const styles = {
-          boxShadow: '2 4 8 rgba(255, 255, 255, 0.5)',
+          boxShadow: '2px 4px 8px rgba(255, 255, 255, 0.5)',
         };
       `,
     },
@@ -226,7 +226,7 @@ ruleTester.run('prefer-box-shadow', rule, {
           margin: 10,
           paddingLeft: 15,
           paddingRight: 20,
-          boxShadow: '0 5 10 rgba(0, 0, 0, 0.2)',
+          boxShadow: '0px 5px 10px rgba(0, 0, 0, 0.2)',
         };
       `,
     },

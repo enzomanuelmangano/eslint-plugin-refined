@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
 ```jsx
 const styles = StyleSheet.create({
   container: {
-    boxShadow: '0 2 3.84 rgba(0, 0, 0, 0.25)',
+    boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
   },
 });
 ```

@@ -149,7 +149,7 @@ export = createRule<Options, MessageIds>({
       }
 
       const finalColor = opacity !== 1 ? convertToRgba(color, opacity) : color;
-      return `${offsetX} ${offsetY} ${radius} ${finalColor}`;
+      return `${offsetX}px ${offsetY}px ${radius}px ${finalColor}`;
     }
 
     function hasNonLiteralValue(node: TSESTree.Node): boolean {
