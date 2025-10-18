@@ -23,6 +23,15 @@ const plugin = {
     'require-hitslop-small-touchables': requireHitslopSmallTouchables,
   },
   configs: {
+    base: {
+      plugins: ['refined'],
+      rules: {
+        'refined/border-radius-with-curve': 'warn',
+        'refined/prefer-hairline-width': 'warn',
+        'refined/prefer-box-shadow': 'warn',
+        'refined/require-hitslop-small-touchables': 'warn',
+      },
+    },
     recommended: {
       plugins: ['refined'],
       rules: {
