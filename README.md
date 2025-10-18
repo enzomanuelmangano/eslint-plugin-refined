@@ -65,7 +65,7 @@ export default [
 
 ## Rules
 
-### border-radius-with-curve
+### [border-radius-with-curve](./docs/rules/border-radius-with-curve.md)
 
 Enforces using `borderCurve: 'continuous'` when borderRadius properties are used for better visual quality on iOS.
 
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-### prefer-hairline-width
+### [prefer-hairline-width](./docs/rules/prefer-hairline-width.md)
 
 Suggests using `StyleSheet.hairlineWidth` for border widths less than or equal to a configurable threshold (default: 0.3) to ensure consistent thin borders across devices.
 
@@ -144,7 +144,7 @@ rules: {
 }
 ```
 
-### prefer-box-shadow
+### [prefer-box-shadow](./docs/rules/prefer-box-shadow.md)
 
 Suggests using `boxShadow` instead of individual shadow properties (`shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius`, `elevation`) for better performance and simpler syntax. The rule automatically converts shadow properties to the CSS-like `boxShadow` format and removes `elevation` (Android-specific) as `boxShadow` now provides cross-platform shadow support.
 
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
 });
 ```
 
-### spring-config-consistency
+### [spring-config-consistency](./docs/rules/spring-config-consistency.md)
 
 Enforces that spring animations either have all three spring physics parameters (`mass`, `damping`, `stiffness`) or none of them. This ensures consistent spring animations and prevents incomplete configurations.
 
@@ -265,7 +265,7 @@ rules: {
 - **Reanimated v4** (default): `mass: 4`, `damping: 120`, `stiffness: 900`
 - **Reanimated v3**: `mass: 4`, `damping: 10`, `stiffness: 100`
 
-### avoid-touchable-opacity
+### [avoid-touchable-opacity](./docs/rules/avoid-touchable-opacity.md)
 
 Discourages usage of `TouchableOpacity` component in favor of more performant alternatives.
 
@@ -292,7 +292,7 @@ Discourages usage of `TouchableOpacity` component in favor of more performant al
 </TouchableWithoutFeedback>
 ```
 
-### require-hitslop-small-touchables
+### [require-hitslop-small-touchables](./docs/rules/require-hitslop-small-touchables.md)
 
 Requires `hitSlop` prop on touchable elements that are smaller than a configurable threshold (default: 40pt) to improve tap target size and accessibility. This rule detects touchable elements by checking for press handler props (`onPress`, `onLongPress`, etc.) rather than specific component names, making it work with any custom touchable component.
 
