@@ -28,10 +28,10 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         </View>
       `,
     },
-    // Large enough size (>= 35)
+    // Large enough size (>= 40)
     {
       code: `
-        <Pressable onPress={handlePress} style={{ width: 35, height: 35 }}>
+        <Pressable onPress={handlePress} style={{ width: 40, height: 40 }}>
           <Text>Press me</Text>
         </Pressable>
       `,
@@ -39,7 +39,7 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
     // Above threshold
     {
       code: `
-        <Pressable onPress={handlePress} style={{ width: 40, height: 40 }}>
+        <Pressable onPress={handlePress} style={{ width: 50, height: 50 }}>
           <Text>Press me</Text>
         </Pressable>
       `,

@@ -176,11 +176,81 @@ export = createRule<Options, MessageIds>({
       }
     }
 
+    function isInsideAnimatedStyle(node: TSESTree.Node): boolean {
+      let current = node.parent;
+      while (current) {
+        // Check if inside useAnimatedStyle, useAnimatedReaction, useDerivedValue, etc.
+        if (
+          current.type === 'CallExpression' &&
+          current.callee.type === 'Identifier' &&
+          (current.callee.name.startsWith('useAnimated') ||
+           current.callee.name === 'useDerivedValue' ||
+           current.callee.name === 'runOnUI' ||
+           current.callee.name === 'runOnJS')
+        ) {
+          return true;
+        }
+        current = current.parent;
+      }
+      return false;
+    }
+
+    function isInStyleSheetCreate(node: TSESTree.Node): boolean {
+      // Check if this object is inside StyleSheet.create({ ... })
+      if (!node.parent || node.parent.type !== 'Property') {
+        return false;
+      }
+
+      const parent = node.parent.parent; // Move up from Property to ObjectExpression
+      if (!parent || parent.type !== 'ObjectExpression') {
+        return false;
+      }
+
+      const grandParent = parent.parent; // Move up from ObjectExpression
+      if (!grandParent || grandParent.type !== 'CallExpression') {
+        return false;
+      }
+
+      return (
+        grandParent.callee.type === 'MemberExpression' &&
+        grandParent.callee.object.type === 'Identifier' &&
+        grandParent.callee.object.name === 'StyleSheet' &&
+        grandParent.callee.property.type === 'Identifier' &&
+        grandParent.callee.property.name === 'create'
+      );
+    }
+
+    function isInlineStyleProp(node: TSESTree.Node): boolean {
+      // Check if this object is inside a JSX style attribute
+      let current = node.parent;
+      while (current) {
+        if (
+          current.type === 'JSXExpressionContainer' &&
+          current.parent?.type === 'JSXAttribute'
+        ) {
+          const attr = current.parent as TSESTree.JSXAttribute;
+          if (attr.name.type === 'JSXIdentifier' && attr.name.name === 'style') {
+            return true;
+          }
+        }
+        current = current.parent;
+      }
+      return false;
+    }
+
     return {
       ObjectExpression(node) {
-        // Check if this could be a style object
-        // We're checking all object expressions that might be styles
-        checkStyleObject(node);
+        // Skip if inside animated style functions
+        if (isInsideAnimatedStyle(node)) {
+          return;
+        }
+
+        // Only check objects that are:
+        // 1. Inside StyleSheet.create() OR
+        // 2. Inside JSX style prop
+        if (isInStyleSheetCreate(node) || isInlineStyleProp(node)) {
+          checkStyleObject(node);
+        }
       },
     };
   },

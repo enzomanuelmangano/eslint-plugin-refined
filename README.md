@@ -11,12 +11,9 @@ This plugin provides rules to help you write better React Native styles:
 - **border-radius-with-curve**: Enforces using `borderCurve: 'continuous'` when borderRadius properties are used
 - **prefer-hairline-width**: Suggests using `StyleSheet.hairlineWidth` for border widths less than a threshold (configurable)
 - **prefer-box-shadow**: Suggests using `boxShadow` instead of individual shadow properties
-
-### Opt-in Rules (must be explicitly enabled)
-
+- **require-hitslop-small-touchables**: Requires hitSlop on small touchable elements for better accessibility
 - **spring-config-consistency**: Enforces consistent spring physics parameters in `withSpring` calls
 - **avoid-touchable-opacity**: Discourages usage of `TouchableOpacity` component
-- **require-hitslop-small-touchables**: Requires hitSlop on small touchable elements for better accessibility
 
 ## Installation
 
@@ -222,14 +219,6 @@ const value = withSpring(100, {
 
 **Note:** The rule provides auto-fix that adds missing parameters with sensible defaults (`mass: 1`, `damping: 10`, `stiffness: 100`).
 
-**Important:** This rule is opt-in and not included in the recommended or strict configs. Enable it explicitly if you want to enforce spring config consistency:
-
-```js
-rules: {
-  'refined/spring-config-consistency': 'warn',
-}
-```
-
 ### avoid-touchable-opacity
 
 Discourages usage of `TouchableOpacity` component in favor of more performant alternatives.
@@ -257,21 +246,13 @@ Discourages usage of `TouchableOpacity` component in favor of more performant al
 </TouchableWithoutFeedback>
 ```
 
-**Important:** This rule is opt-in and not included in the recommended or strict configs. Enable it explicitly if you want to discourage TouchableOpacity:
-
-```js
-rules: {
-  'refined/avoid-touchable-opacity': 'warn',
-}
-```
-
 ### require-hitslop-small-touchables
 
-Requires `hitSlop` prop on touchable elements that are smaller than a configurable threshold (default: 35pt) to improve tap target size and accessibility. This rule detects touchable elements by checking for press handler props (`onPress`, `onLongPress`, etc.) rather than specific component names, making it work with any custom touchable component.
+Requires `hitSlop` prop on touchable elements that are smaller than a configurable threshold (default: 40pt) to improve tap target size and accessibility. This rule detects touchable elements by checking for press handler props (`onPress`, `onLongPress`, etc.) rather than specific component names, making it work with any custom touchable component.
 
 #### Options
 
-- `minSize` (number, default: 35): The minimum recommended size for touchable elements in points. Elements smaller than this should have `hitSlop`.
+- `minSize` (number, default: 40): The minimum recommended size for touchable elements in points. Elements smaller than this should have `hitSlop`.
 
 #### Examples
 
@@ -307,8 +288,8 @@ const styles = StyleSheet.create({
   <Icon name="close" />
 </Pressable>
 
-// Large enough touchable (>= 35pt)
-<Pressable onPress={handlePress} style={{ width: 40, height: 40 }}>
+// Large enough touchable (>= 40pt)
+<Pressable onPress={handlePress} style={{ width: 44, height: 44 }}>
   <Icon name="settings" />
 </Pressable>
 
@@ -321,7 +302,7 @@ const styles = StyleSheet.create({
 #### Configuration
 
 ```js
-// Use default threshold of 35pt
+// Use default threshold of 40pt (automatically enabled in recommended config)
 rules: {
   'refined/require-hitslop-small-touchables': 'warn',
 }
@@ -339,37 +320,35 @@ rules: {
 
 **Note:** This rule checks both inline styles and `StyleSheet.create` references. It detects touchable elements by looking for press handler props, so it works with any component (Pressable, TouchableOpacity, custom components, even View).
 
-**Important:** This rule is opt-in and not included in the recommended or strict configs. Enable it explicitly if you want to enforce minimum tap target sizes:
-
-```js
-rules: {
-  'refined/require-hitslop-small-touchables': 'warn',
-}
-```
-
 ## Configuration
 
 ### Recommended Config
 
-Enables core rules with warning level:
+Enables all rules with warning level:
 
 ```js
 rules: {
   'refined/border-radius-with-curve': 'warn',
   'refined/prefer-hairline-width': 'warn',
   'refined/prefer-box-shadow': 'warn',
+  'refined/require-hitslop-small-touchables': 'warn',
+  'refined/spring-config-consistency': 'warn',
+  'refined/avoid-touchable-opacity': 'warn',
 }
 ```
 
 ### Strict Config
 
-Enables core rules with error level:
+Enables all rules with error level:
 
 ```js
 rules: {
   'refined/border-radius-with-curve': 'error',
   'refined/prefer-hairline-width': 'error',
   'refined/prefer-box-shadow': 'error',
+  'refined/require-hitslop-small-touchables': 'error',
+  'refined/spring-config-consistency': 'error',
+  'refined/avoid-touchable-opacity': 'error',
 }
 ```
 
@@ -387,13 +366,9 @@ export default [
       // Use recommended rules
       ...refined.configs.recommended.rules,
 
-      // Customize prefer-hairline-width threshold
+      // Customize rule options
       'refined/prefer-hairline-width': ['warn', { threshold: 0.5 }],
-
-      // Enable opt-in rules
-      'refined/spring-config-consistency': 'warn',
-      'refined/avoid-touchable-opacity': 'warn',
-      'refined/require-hitslop-small-touchables': 'warn',
+      'refined/require-hitslop-small-touchables': ['warn', { minSize: 44 }],
     },
   },
 ];
