@@ -45,6 +45,9 @@ export = createRule<Options, MessageIds>({
     // Track StyleSheet.create() calls in the file
     const styleSheets = new Map<string, Map<string, StyleProperties>>();
 
+    // Collect JSX elements to check at the end (two-pass approach)
+    const elementsToCheck: TSESTree.JSXOpeningElement[] = [];
+
     const touchableProps = new Set([
       'onPress',
       'onLongPress',
@@ -182,70 +185,80 @@ export = createRule<Options, MessageIds>({
         }
       },
 
-      // Check JSX elements with touchable callbacks
+      // Collect JSX elements with touchable callbacks for later checking
       JSXOpeningElement(node) {
         const attributes = node.attributes.filter(
           (attr): attr is TSESTree.JSXAttribute => attr.type === 'JSXAttribute'
         );
 
-        // Only check elements with press handlers
+        // Only collect elements with press handlers
         if (!hasTouchableCallback(attributes)) {
           return;
         }
 
-        // Skip if already has hitSlop
-        if (hasHitSlopProp(attributes)) {
-          return;
-        }
+        // Collect for later checking
+        elementsToCheck.push(node);
+      },
 
-        // Get style prop
-        const styleProp = getStyleProp(attributes);
-        if (!styleProp) {
-          return;
-        }
+      // Check all collected elements at the end of the file
+      'Program:exit'() {
+        for (const node of elementsToCheck) {
+          const attributes = node.attributes.filter(
+            (attr): attr is TSESTree.JSXAttribute => attr.type === 'JSXAttribute'
+          );
 
-        // Extract dimensions
-        const styleProps = extractStyleProperties(styleProp);
-        if (!styleProps) {
-          return;
-        }
+          // Skip if already has hitSlop
+          if (hasHitSlopProp(attributes)) {
+            continue;
+          }
 
-        const { width, height } = styleProps;
+          // Get style prop
+          const styleProp = getStyleProp(attributes);
+          if (!styleProp) {
+            continue;
+          }
 
-        // Check if either dimension is below threshold
-        if ((width !== undefined && width < minSize) ||
-            (height !== undefined && height < minSize)) {
+          // Extract dimensions
+          const styleProps = extractStyleProperties(styleProp);
+          if (!styleProps) {
+            continue;
+          }
 
-          // Calculate required hitSlop to reach minSize
-          // hitSlop adds padding on all sides, so total touchable area = size + (hitSlop * 2)
-          const widthHitSlop = width !== undefined ? Math.max(0, Math.ceil((minSize - width) / 2)) : 0;
-          const heightHitSlop = height !== undefined ? Math.max(0, Math.ceil((minSize - height) / 2)) : 0;
-          const requiredHitSlop = Math.max(widthHitSlop, heightHitSlop);
+          const { width, height } = styleProps;
 
-          context.report({
-            node,
-            messageId: 'requireHitSlop',
-            data: {
-              width: width?.toString() ?? 'unknown',
-              height: height?.toString() ?? 'unknown',
-              minSize: minSize.toString(),
-            },
-            fix(fixer) {
-              const sourceCode = context.sourceCode;
+          // Check if either dimension is below threshold
+          if ((width !== undefined && width < minSize) ||
+              (height !== undefined && height < minSize)) {
 
-              // Find the last attribute
-              const lastAttr = attributes[attributes.length - 1];
-              if (!lastAttr) {
-                return null;
-              }
+            // Calculate required hitSlop to reach minSize
+            // hitSlop adds padding on all sides, so total touchable area = size + (hitSlop * 2)
+            const widthHitSlop = width !== undefined ? Math.max(0, Math.ceil((minSize - width) / 2)) : 0;
+            const heightHitSlop = height !== undefined ? Math.max(0, Math.ceil((minSize - height) / 2)) : 0;
+            const requiredHitSlop = Math.max(widthHitSlop, heightHitSlop);
 
-              // Insert hitSlop after the last attribute
-              return fixer.insertTextAfter(
-                lastAttr,
-                ` hitSlop={${requiredHitSlop}}`
-              );
-            },
-          });
+            context.report({
+              node,
+              messageId: 'requireHitSlop',
+              data: {
+                width: width?.toString() ?? 'unknown',
+                height: height?.toString() ?? 'unknown',
+                minSize: minSize.toString(),
+              },
+              fix(fixer) {
+                // Find the last attribute
+                const lastAttr = attributes[attributes.length - 1];
+                if (!lastAttr) {
+                  return null;
+                }
+
+                // Insert hitSlop after the last attribute
+                return fixer.insertTextAfter(
+                  lastAttr,
+                  ` hitSlop={${requiredHitSlop}}`
+                );
+              },
+            });
+          }
         }
       },
     };

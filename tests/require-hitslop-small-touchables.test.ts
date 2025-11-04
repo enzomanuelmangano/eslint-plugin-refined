@@ -88,6 +88,34 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
       `,
       options: [{ minSize: 20 }],
     },
+    // StyleSheet defined AFTER component (forward reference) - large size
+    {
+      code: `
+        const Component = () => (
+          <Pressable onPress={handlePress} style={styles.button}>
+            <Text>Press me</Text>
+          </Pressable>
+        );
+
+        const styles = StyleSheet.create({
+          button: { width: 50, height: 50 }
+        });
+      `,
+    },
+    // StyleSheet after component with hitSlop already present
+    {
+      code: `
+        const Component = () => (
+          <Pressable onPress={handlePress} style={styles.button} hitSlop={10}>
+            <Text>Press me</Text>
+          </Pressable>
+        );
+
+        const styles = StyleSheet.create({
+          button: { width: 20, height: 20 }
+        });
+      `,
+    },
   ],
   invalid: [
     // Small inline style
@@ -283,6 +311,115 @@ ruleTester.run('require-hitslop-small-touchables', rule, {
         <Pressable onPress={handlePress} style={buttonStyles.small} hitSlop={6}>
           <Icon name="menu" />
         </Pressable>
+      `,
+    },
+    // StyleSheet defined AFTER component (forward reference) - small size
+    {
+      code: `
+        const CollapsedButton = ({ onPress }) => (
+          <PressableScale style={styles.button} onPress={onPress}>
+            <Icon name="settings" />
+          </PressableScale>
+        );
+
+        const styles = StyleSheet.create({
+          button: {
+            width: 12,
+            height: 12,
+          },
+        });
+      `,
+      errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const CollapsedButton = ({ onPress }) => (
+          <PressableScale style={styles.button} onPress={onPress} hitSlop={14}>
+            <Icon name="settings" />
+          </PressableScale>
+        );
+
+        const styles = StyleSheet.create({
+          button: {
+            width: 12,
+            height: 12,
+          },
+        });
+      `,
+    },
+    // Forward reference with only width
+    {
+      code: `
+        const Component = () => (
+          <Pressable onPress={handlePress} style={styles.icon}>
+            <Icon name="close" />
+          </Pressable>
+        );
+
+        const styles = StyleSheet.create({
+          icon: { width: 24 }
+        });
+      `,
+      errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const Component = () => (
+          <Pressable onPress={handlePress} style={styles.icon} hitSlop={8}>
+            <Icon name="close" />
+          </Pressable>
+        );
+
+        const styles = StyleSheet.create({
+          icon: { width: 24 }
+        });
+      `,
+    },
+    // Forward reference with multiple components using same stylesheet
+    {
+      code: `
+        const Button1 = () => <Pressable onPress={handlePress} style={styles.small}><Text>1</Text></Pressable>;
+        const Button2 = () => <TouchableOpacity onPress={handlePress} style={styles.small}><Text>2</Text></TouchableOpacity>;
+
+        const styles = StyleSheet.create({
+          small: { width: 32, height: 32 }
+        });
+      `,
+      errors: [
+        { messageId: 'requireHitSlop' },
+        { messageId: 'requireHitSlop' },
+      ],
+      output: `
+        const Button1 = () => <Pressable onPress={handlePress} style={styles.small} hitSlop={4}><Text>1</Text></Pressable>;
+        const Button2 = () => <TouchableOpacity onPress={handlePress} style={styles.small} hitSlop={4}><Text>2</Text></TouchableOpacity>;
+
+        const styles = StyleSheet.create({
+          small: { width: 32, height: 32 }
+        });
+      `,
+    },
+    // Forward reference with style array
+    {
+      code: `
+        const Component = () => (
+          <Pressable onPress={handlePress} style={[styles.base, styles.tiny]}>
+            <Icon name="x" />
+          </Pressable>
+        );
+
+        const styles = StyleSheet.create({
+          base: { borderRadius: 4 },
+          tiny: { width: 16, height: 16 }
+        });
+      `,
+      errors: [{ messageId: 'requireHitSlop' }],
+      output: `
+        const Component = () => (
+          <Pressable onPress={handlePress} style={[styles.base, styles.tiny]} hitSlop={12}>
+            <Icon name="x" />
+          </Pressable>
+        );
+
+        const styles = StyleSheet.create({
+          base: { borderRadius: 4 },
+          tiny: { width: 16, height: 16 }
+        });
       `,
     },
   ],
