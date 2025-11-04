@@ -14,12 +14,12 @@ This plugin provides rules to help you write better React Native styles.
 
 ### Rules
 
-- **border-radius-with-curve**: Enforces using `borderCurve: 'continuous'` when borderRadius properties are used
-- **prefer-hairline-width**: Suggests using `StyleSheet.hairlineWidth` for border widths less than a threshold (configurable)
-- **prefer-box-shadow**: Suggests using `boxShadow` instead of individual shadow properties
-- **require-hitslop-small-touchables**: Requires hitSlop on small touchable elements for better accessibility
-- **spring-config-consistency**: Enforces consistent spring physics parameters in `withSpring` calls
-- **avoid-touchable-opacity**: Discourages usage of `TouchableOpacity` component
+- **[border-radius-with-curve](./docs/rules/border-radius-with-curve.md)**: Enforces using `borderCurve: 'continuous'` when borderRadius properties are used
+- **[prefer-hairline-width](./docs/rules/prefer-hairline-width.md)**: Suggests using `StyleSheet.hairlineWidth` for border widths less than a threshold (configurable)
+- **[prefer-box-shadow](./docs/rules/prefer-box-shadow.md)**: Suggests using `boxShadow` instead of individual shadow properties. Triggers on any shadow property, even without `shadowColor`, and uses `#000` as default
+- **[require-hitslop-small-touchables](./docs/rules/require-hitslop-small-touchables.md)**: Requires hitSlop on small touchable elements for better accessibility
+- **[spring-config-consistency](./docs/rules/spring-config-consistency.md)**: Enforces consistent spring physics parameters in `withSpring` calls
+- **[avoid-touchable-opacity](./docs/rules/avoid-touchable-opacity.md)**: Discourages usage of `TouchableOpacity` component
 
 ## Installation
 
@@ -81,7 +81,7 @@ Suggests using `StyleSheet.hairlineWidth` for thin borders (configurable thresho
 
 ### [prefer-box-shadow](./docs/rules/prefer-box-shadow.md)
 
-Suggests using `boxShadow` instead of individual shadow properties for better performance.
+Suggests using `boxShadow` instead of individual shadow properties (`shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius`). Triggers on any shadow property, even without `shadowColor`, and uses `#000` (black) as the default color when missing.
 
 ### [require-hitslop-small-touchables](./docs/rules/require-hitslop-small-touchables.md)
 
@@ -98,6 +98,10 @@ Discourages usage of `TouchableOpacity` in favor of more performant alternatives
 ## Configuration
 
 This plugin provides three preset configurations:
+
+- **base**: Core style rules (border-radius, hairline-width, box-shadow, hitslop)
+- **recommended**: All rules with warnings (includes spring-config, avoid-touchable-opacity)
+- **strict**: All rules with errors
 
 ### Base Config
 

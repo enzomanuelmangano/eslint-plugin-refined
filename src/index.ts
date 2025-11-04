@@ -7,7 +7,9 @@ import requireHitslopSmallTouchables = require('./rules/require-hitslop-small-to
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
+const pkg = JSON.parse(
+  readFileSync(join(__dirname, '../package.json'), 'utf-8')
+);
 
 const plugin = {
   meta: {

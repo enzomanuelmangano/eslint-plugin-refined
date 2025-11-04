@@ -2,7 +2,8 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
+  (name) =>
+    `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
 );
 
 type MessageIds = 'avoidTouchableOpacity';
@@ -17,7 +18,8 @@ export = createRule<Options, MessageIds>({
     },
     schema: [],
     messages: {
-      avoidTouchableOpacity: 'Avoid using TouchableOpacity - consider alternatives for better performance',
+      avoidTouchableOpacity:
+        'Avoid using TouchableOpacity - you should care about your touchables',
     },
   },
   defaultOptions: [],
@@ -25,7 +27,10 @@ export = createRule<Options, MessageIds>({
     return {
       // Check for JSX usage: <TouchableOpacity>
       JSXOpeningElement(node) {
-        if (node.name.type === 'JSXIdentifier' && node.name.name === 'TouchableOpacity') {
+        if (
+          node.name.type === 'JSXIdentifier' &&
+          node.name.name === 'TouchableOpacity'
+        ) {
           context.report({
             node: node.name,
             messageId: 'avoidTouchableOpacity',

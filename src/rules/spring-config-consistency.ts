@@ -2,7 +2,8 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
+  (name) =>
+    `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
 );
 
 type MessageIds = 'incompleteSpringConfig' | 'addMissingParams';
@@ -13,7 +14,8 @@ export = createRule<Options, MessageIds>({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Enforce that spring animations (withSpring and Transition.springify) either have all spring physics params (mass, damping, stiffness) or none of them',
+      description:
+        'Enforce that spring animations (withSpring and Transition.springify) either have all spring physics params (mass, damping, stiffness) or none of them',
     },
     fixable: 'code',
     schema: [
@@ -30,7 +32,8 @@ export = createRule<Options, MessageIds>({
       },
     ],
     messages: {
-      incompleteSpringConfig: 'Spring animation must include all three spring physics params (mass, damping, stiffness) or none of them. Currently missing: {{missing}}',
+      incompleteSpringConfig:
+        'Spring animation must include all three spring physics params (mass, damping, stiffness) or none of them. Currently missing: {{missing}}',
       addMissingParams: 'Add missing spring physics parameters',
     },
   },
@@ -43,7 +46,10 @@ export = createRule<Options, MessageIds>({
 
     function checkWithSpringCall(node: TSESTree.CallExpression) {
       // Check if this is a withSpring call
-      if (node.callee.type !== 'Identifier' || node.callee.name !== 'withSpring') {
+      if (
+        node.callee.type !== 'Identifier' ||
+        node.callee.name !== 'withSpring'
+      ) {
         return;
       }
 
@@ -85,7 +91,9 @@ export = createRule<Options, MessageIds>({
       }
 
       // Check if we have partial spring physics params
-      const springParamsCount = [hasMass, hasDamping, hasStiffness].filter(Boolean).length;
+      const springParamsCount = [hasMass, hasDamping, hasStiffness].filter(
+        Boolean
+      ).length;
 
       // If we have some but not all params, report an error
       if (springParamsCount > 0 && springParamsCount < 3) {
@@ -104,23 +112,28 @@ export = createRule<Options, MessageIds>({
             const sourceCode = context.sourceCode;
 
             // Find the last property in the config object
-            const lastProp = configArg.properties[configArg.properties.length - 1];
+            const lastProp =
+              configArg.properties[configArg.properties.length - 1];
             if (!lastProp || lastProp.type !== 'Property') {
               return null;
             }
 
             // Get indentation from the config object
-            const configStartLine = sourceCode.lines[configArg.loc.start.line - 1];
+            const configStartLine =
+              sourceCode.lines[configArg.loc.start.line - 1];
             const indent = configStartLine?.match(/^(\s*)/)?.[1] || '';
             const propIndent = indent + '  ';
 
             // Default values for missing params based on Reanimated version
-            const defaults: Record<string, number> = reanimatedVersion === 'v3'
-              ? { mass: 4, damping: 10, stiffness: 100 }
-              : { mass: 4, damping: 120, stiffness: 900 };
+            const defaults: Record<string, number> =
+              reanimatedVersion === 'v3'
+                ? { mass: 4, damping: 10, stiffness: 100 }
+                : { mass: 4, damping: 120, stiffness: 900 };
 
             // Build the properties to add
-            const propsToAdd = missing.map(param => `${param}: ${defaults[param]}`).join(`,\n${propIndent}`);
+            const propsToAdd = missing
+              .map((param) => `${param}: ${defaults[param]}`)
+              .join(`,\n${propIndent}`);
 
             // Insert after the last property
             const lastToken = sourceCode.getLastToken(lastProp);
@@ -140,16 +153,20 @@ export = createRule<Options, MessageIds>({
     function checkTransitionSpringify(node: TSESTree.CallExpression) {
       // Check if this is a .springify() call on a Transition
       // Pattern: LinearTransition.springify()
-      if (node.callee.type !== 'MemberExpression' ||
-          node.callee.property.type !== 'Identifier' ||
-          node.callee.property.name !== 'springify') {
+      if (
+        node.callee.type !== 'MemberExpression' ||
+        node.callee.property.type !== 'Identifier' ||
+        node.callee.property.name !== 'springify'
+      ) {
         return;
       }
 
       // Check if the object is a transition type (ends with "Transition")
       let isTransition = false;
-      if (node.callee.object.type === 'Identifier' &&
-          node.callee.object.name.endsWith('Transition')) {
+      if (
+        node.callee.object.type === 'Identifier' &&
+        node.callee.object.name.endsWith('Transition')
+      ) {
         isTransition = true;
       }
 
@@ -165,11 +182,13 @@ export = createRule<Options, MessageIds>({
       // Pattern: node is part of MemberExpression, which is callee of CallExpression
       while (current.parent) {
         // Check if parent is a MemberExpression that uses this call as its object
-        if (current.parent.type === 'MemberExpression' &&
-            current.parent.object === current &&
-            current.parent.parent &&
-            current.parent.parent.type === 'CallExpression' &&
-            current.parent.parent.callee === current.parent) {
+        if (
+          current.parent.type === 'MemberExpression' &&
+          current.parent.object === current &&
+          current.parent.parent &&
+          current.parent.parent.type === 'CallExpression' &&
+          current.parent.parent.callee === current.parent
+        ) {
           chainEnd = current.parent.parent;
           current = current.parent.parent;
         } else {
@@ -188,10 +207,16 @@ export = createRule<Options, MessageIds>({
       let currentNode: TSESTree.Node = chainEnd;
 
       while (currentNode.type === 'CallExpression') {
-        if (currentNode.callee.type === 'MemberExpression' &&
-            currentNode.callee.property.type === 'Identifier') {
+        if (
+          currentNode.callee.type === 'MemberExpression' &&
+          currentNode.callee.property.type === 'Identifier'
+        ) {
           const methodName = currentNode.callee.property.name;
-          if (methodName === 'mass' || methodName === 'damping' || methodName === 'stiffness') {
+          if (
+            methodName === 'mass' ||
+            methodName === 'damping' ||
+            methodName === 'stiffness'
+          ) {
             chainedMethods.set(methodName, currentNode);
           }
         }
@@ -208,7 +233,9 @@ export = createRule<Options, MessageIds>({
       const hasDamping = chainedMethods.has('damping');
       const hasStiffness = chainedMethods.has('stiffness');
 
-      const springParamsCount = [hasMass, hasDamping, hasStiffness].filter(Boolean).length;
+      const springParamsCount = [hasMass, hasDamping, hasStiffness].filter(
+        Boolean
+      ).length;
 
       // If we have some but not all params, report an error
       if (springParamsCount > 0 && springParamsCount < 3) {
@@ -218,9 +245,10 @@ export = createRule<Options, MessageIds>({
         if (!hasStiffness) missing.push('stiffness');
 
         // Default values for missing params based on Reanimated version
-        const defaults: Record<string, number> = reanimatedVersion === 'v3'
-          ? { mass: 4, damping: 10, stiffness: 100 }
-          : { mass: 4, damping: 120, stiffness: 900 };
+        const defaults: Record<string, number> =
+          reanimatedVersion === 'v3'
+            ? { mass: 4, damping: 10, stiffness: 100 }
+            : { mass: 4, damping: 120, stiffness: 900 };
 
         context.report({
           node: chainEnd,
@@ -232,7 +260,9 @@ export = createRule<Options, MessageIds>({
             const sourceCode = context.sourceCode;
 
             // Build the missing method calls
-            const missingCalls = missing.map(param => `.${param}(${defaults[param]})`).join('');
+            const missingCalls = missing
+              .map((param) => `.${param}(${defaults[param]})`)
+              .join('');
 
             // Insert after the last token of the chain
             const lastToken = sourceCode.getLastToken(chainEnd);

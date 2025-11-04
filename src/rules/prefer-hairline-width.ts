@@ -2,7 +2,8 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
+  (name) =>
+    `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
 );
 
 type MessageIds = 'useHairlineWidth';
@@ -13,7 +14,8 @@ export = createRule<Options, MessageIds>({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer StyleSheet.hairlineWidth for border widths less than a threshold (default 0.3)',
+      description:
+        'Prefer StyleSheet.hairlineWidth for border widths less than a threshold (default 0.3)',
     },
     fixable: 'code',
     schema: [
@@ -31,7 +33,8 @@ export = createRule<Options, MessageIds>({
       },
     ],
     messages: {
-      useHairlineWidth: 'Use StyleSheet.hairlineWidth instead of {{value}} for consistent thin borders across devices',
+      useHairlineWidth:
+        'Use StyleSheet.hairlineWidth instead of {{value}} for consistent thin borders across devices',
     },
   },
   defaultOptions: [{ threshold: 0.3 }],
@@ -47,14 +50,19 @@ export = createRule<Options, MessageIds>({
       'borderEndWidth',
     ]);
 
-    function isNumericLiteral(node: TSESTree.Node): node is TSESTree.Literal & { value: number } {
+    function isNumericLiteral(
+      node: TSESTree.Node
+    ): node is TSESTree.Literal & { value: number } {
       return node.type === 'Literal' && typeof node.value === 'number';
     }
 
     return {
       Property(node) {
         // Check if this is a border width property
-        if (node.key.type === 'Identifier' && borderWidthProperties.has(node.key.name)) {
+        if (
+          node.key.type === 'Identifier' &&
+          borderWidthProperties.has(node.key.name)
+        ) {
           const value = node.value;
 
           // Check if the value is a number less than threshold

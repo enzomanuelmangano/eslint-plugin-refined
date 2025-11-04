@@ -2,7 +2,8 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
+  (name) =>
+    `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
 );
 
 type MessageIds = 'missingBorderCurve' | 'unnecessaryBorderCurve';
@@ -13,13 +14,16 @@ export = createRule<Options, MessageIds>({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Enforce borderCurve: "continuous" when borderRadius properties are used',
+      description:
+        'Enforce borderCurve: "continuous" when borderRadius properties are used',
     },
     fixable: 'code',
     schema: [],
     messages: {
-      missingBorderCurve: 'When using borderRadius properties, you should also specify borderCurve: "continuous" for better visual quality on iOS',
-      unnecessaryBorderCurve: 'borderCurve has no effect on circular shapes (when borderRadius >= half of width/height or >= 9999)',
+      missingBorderCurve:
+        'When using borderRadius properties, you should also specify borderCurve: "continuous" for beautiful rounded corners on iOS',
+      unnecessaryBorderCurve:
+        'borderCurve has no effect on circular shapes (when borderRadius >= half of width/height or >= 9999)',
     },
   },
   defaultOptions: [],
@@ -47,17 +51,29 @@ export = createRule<Options, MessageIds>({
           const value = prop.value;
 
           // Extract borderRadius value
-          if (propName === 'borderRadius' && value.type === 'Literal' && typeof value.value === 'number') {
+          if (
+            propName === 'borderRadius' &&
+            value.type === 'Literal' &&
+            typeof value.value === 'number'
+          ) {
             borderRadius = value.value;
           }
 
           // Extract width value
-          if (propName === 'width' && value.type === 'Literal' && typeof value.value === 'number') {
+          if (
+            propName === 'width' &&
+            value.type === 'Literal' &&
+            typeof value.value === 'number'
+          ) {
             width = value.value;
           }
 
           // Extract height value
-          if (propName === 'height' && value.type === 'Literal' && typeof value.value === 'number') {
+          if (
+            propName === 'height' &&
+            value.type === 'Literal' &&
+            typeof value.value === 'number'
+          ) {
             height = value.value;
           }
         }
@@ -69,11 +85,19 @@ export = createRule<Options, MessageIds>({
       }
 
       // If borderRadius is half or more of width or height, it creates a circle
-      if (borderRadius !== undefined && width !== undefined && borderRadius >= width / 2) {
+      if (
+        borderRadius !== undefined &&
+        width !== undefined &&
+        borderRadius >= width / 2
+      ) {
         return true;
       }
 
-      if (borderRadius !== undefined && height !== undefined && borderRadius >= height / 2) {
+      if (
+        borderRadius !== undefined &&
+        height !== undefined &&
+        borderRadius >= height / 2
+      ) {
         return true;
       }
 
@@ -118,22 +142,42 @@ export = createRule<Options, MessageIds>({
             const tokenBefore = sourceCode.getTokenBefore(borderCurveProp);
             const tokenAfter = sourceCode.getTokenAfter(borderCurveProp);
 
-            const hasCommaBefore = tokenBefore && tokenBefore.type === 'Punctuator' && tokenBefore.value === ',';
-            const hasCommaAfter = tokenAfter && tokenAfter.type === 'Punctuator' && tokenAfter.value === ',';
+            const hasCommaBefore =
+              tokenBefore &&
+              tokenBefore.type === 'Punctuator' &&
+              tokenBefore.value === ',';
+            const hasCommaAfter =
+              tokenAfter &&
+              tokenAfter.type === 'Punctuator' &&
+              tokenAfter.value === ',';
 
             if (hasCommaAfter) {
               // Remove property and trailing comma, including whitespace after
-              const nextToken = sourceCode.getTokenAfter(tokenAfter, { includeComments: true });
+              const nextToken = sourceCode.getTokenAfter(tokenAfter, {
+                includeComments: true,
+              });
               if (nextToken) {
-                const textBetween = sourceCode.text.substring(tokenAfter.range[1], nextToken.range[0]);
+                const textBetween = sourceCode.text.substring(
+                  tokenAfter.range[1],
+                  nextToken.range[0]
+                );
                 if (/^\s*$/.test(textBetween)) {
-                  return fixer.removeRange([borderCurveProp.range[0], nextToken.range[0]]);
+                  return fixer.removeRange([
+                    borderCurveProp.range[0],
+                    nextToken.range[0],
+                  ]);
                 }
               }
-              return fixer.removeRange([borderCurveProp.range[0], tokenAfter.range[1]]);
+              return fixer.removeRange([
+                borderCurveProp.range[0],
+                tokenAfter.range[1],
+              ]);
             } else if (hasCommaBefore) {
               // Remove comma before and property
-              return fixer.removeRange([tokenBefore.range[0], borderCurveProp.range[1]]);
+              return fixer.removeRange([
+                tokenBefore.range[0],
+                borderCurveProp.range[1],
+              ]);
             } else {
               // Just remove the property
               return fixer.remove(borderCurveProp);
@@ -161,7 +205,8 @@ export = createRule<Options, MessageIds>({
 
               if (lastToken) {
                 // Get the line containing the last property to determine indentation
-                const propertyStartLine = sourceCode.lines[lastProperty.loc.start.line - 1];
+                const propertyStartLine =
+                  sourceCode.lines[lastProperty.loc.start.line - 1];
                 const indent = propertyStartLine?.match(/^\s*/)?.[0] || '  ';
 
                 return fixer.insertTextAfter(
@@ -184,9 +229,9 @@ export = createRule<Options, MessageIds>({
           current.type === 'CallExpression' &&
           current.callee.type === 'Identifier' &&
           (current.callee.name.startsWith('useAnimated') ||
-           current.callee.name === 'useDerivedValue' ||
-           current.callee.name === 'runOnUI' ||
-           current.callee.name === 'runOnJS')
+            current.callee.name === 'useDerivedValue' ||
+            current.callee.name === 'runOnUI' ||
+            current.callee.name === 'runOnJS')
         ) {
           return true;
         }
@@ -229,7 +274,10 @@ export = createRule<Options, MessageIds>({
           current.parent?.type === 'JSXAttribute'
         ) {
           const attr = current.parent as TSESTree.JSXAttribute;
-          if (attr.name.type === 'JSXIdentifier' && attr.name.name === 'style') {
+          if (
+            attr.name.type === 'JSXIdentifier' &&
+            attr.name.name === 'style'
+          ) {
             return true;
           }
         }

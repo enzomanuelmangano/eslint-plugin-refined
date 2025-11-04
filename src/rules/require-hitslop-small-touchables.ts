@@ -2,7 +2,8 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
+  (name) =>
+    `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
 );
 
 type MessageIds = 'requireHitSlop';
@@ -18,7 +19,8 @@ export = createRule<Options, MessageIds>({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Require hitSlop on small touchable elements to improve tap target size',
+      description:
+        'Require hitSlop on small touchable elements to improve tap target size',
     },
     fixable: 'code',
     schema: [
@@ -35,7 +37,8 @@ export = createRule<Options, MessageIds>({
       },
     ],
     messages: {
-      requireHitSlop: 'Touchable element is {{width}}x{{height}}pt (recommended minimum: {{minSize}}pt). Consider adding hitSlop for better accessibility.',
+      requireHitSlop:
+        'Touchable element is {{width}}x{{height}}pt (recommended minimum: {{minSize}}pt). Consider adding hitSlop for better accessibility.',
     },
   },
   defaultOptions: [{ minSize: 40 }],
@@ -57,16 +60,20 @@ export = createRule<Options, MessageIds>({
       'onTouchEnd',
     ]);
 
-    function parseStyleObject(node: TSESTree.ObjectExpression): StyleProperties {
+    function parseStyleObject(
+      node: TSESTree.ObjectExpression
+    ): StyleProperties {
       const result: StyleProperties = {};
 
       for (const prop of node.properties) {
         if (prop.type === 'Property' && prop.key.type === 'Identifier') {
           const propName = prop.key.name;
 
-          if ((propName === 'width' || propName === 'height') &&
-              prop.value.type === 'Literal' &&
-              typeof prop.value.value === 'number') {
+          if (
+            (propName === 'width' || propName === 'height') &&
+            prop.value.type === 'Literal' &&
+            typeof prop.value.value === 'number'
+          ) {
             result[propName] = prop.value.value;
           }
         }
@@ -75,7 +82,10 @@ export = createRule<Options, MessageIds>({
       return result;
     }
 
-    function getStyleFromReference(styleName: string, objectName?: string): StyleProperties | null {
+    function getStyleFromReference(
+      styleName: string,
+      objectName?: string
+    ): StyleProperties | null {
       // Handle styles.icon or just icon
       const sheetName = objectName || 'styles';
       const sheet = styleSheets.get(sheetName);
@@ -87,7 +97,9 @@ export = createRule<Options, MessageIds>({
       return null;
     }
 
-    function extractStyleProperties(styleNode: TSESTree.Node): StyleProperties | null {
+    function extractStyleProperties(
+      styleNode: TSESTree.Node
+    ): StyleProperties | null {
       // Inline style object: style={{ width: 30, height: 30 }}
       if (styleNode.type === 'ObjectExpression') {
         return parseStyleObject(styleNode);
@@ -95,8 +107,14 @@ export = createRule<Options, MessageIds>({
 
       // Style reference: style={styles.icon}
       if (styleNode.type === 'MemberExpression') {
-        if (styleNode.object.type === 'Identifier' && styleNode.property.type === 'Identifier') {
-          return getStyleFromReference(styleNode.property.name, styleNode.object.name);
+        if (
+          styleNode.object.type === 'Identifier' &&
+          styleNode.property.type === 'Identifier'
+        ) {
+          return getStyleFromReference(
+            styleNode.property.name,
+            styleNode.object.name
+          );
         }
       }
 
@@ -119,24 +137,29 @@ export = createRule<Options, MessageIds>({
       return null;
     }
 
-    function hasTouchableCallback(attributes: TSESTree.JSXAttribute[]): boolean {
-      return attributes.some(attr =>
-        attr.name.type === 'JSXIdentifier' &&
-        touchableProps.has(attr.name.name)
+    function hasTouchableCallback(
+      attributes: TSESTree.JSXAttribute[]
+    ): boolean {
+      return attributes.some(
+        (attr) =>
+          attr.name.type === 'JSXIdentifier' &&
+          touchableProps.has(attr.name.name)
       );
     }
 
     function hasHitSlopProp(attributes: TSESTree.JSXAttribute[]): boolean {
-      return attributes.some(attr =>
-        attr.name.type === 'JSXIdentifier' &&
-        attr.name.name === 'hitSlop'
+      return attributes.some(
+        (attr) =>
+          attr.name.type === 'JSXIdentifier' && attr.name.name === 'hitSlop'
       );
     }
 
-    function getStyleProp(attributes: TSESTree.JSXAttribute[]): TSESTree.Node | null {
-      const styleProp = attributes.find(attr =>
-        attr.name.type === 'JSXIdentifier' &&
-        attr.name.name === 'style'
+    function getStyleProp(
+      attributes: TSESTree.JSXAttribute[]
+    ): TSESTree.Node | null {
+      const styleProp = attributes.find(
+        (attr) =>
+          attr.name.type === 'JSXIdentifier' && attr.name.name === 'style'
       );
 
       if (styleProp?.value?.type === 'JSXExpressionContainer') {
@@ -164,7 +187,10 @@ export = createRule<Options, MessageIds>({
           let variableName = 'styles';
           const parent = node.parent;
 
-          if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+          if (
+            parent?.type === 'VariableDeclarator' &&
+            parent.id.type === 'Identifier'
+          ) {
             variableName = parent.id.name;
           }
 
@@ -172,9 +198,11 @@ export = createRule<Options, MessageIds>({
 
           // Parse each style definition
           for (const prop of stylesObject.properties) {
-            if (prop.type === 'Property' &&
-                prop.key.type === 'Identifier' &&
-                prop.value.type === 'ObjectExpression') {
+            if (
+              prop.type === 'Property' &&
+              prop.key.type === 'Identifier' &&
+              prop.value.type === 'ObjectExpression'
+            ) {
               const styleName = prop.key.name;
               const styleProps = parseStyleObject(prop.value);
               styleMap.set(styleName, styleProps);
@@ -204,7 +232,8 @@ export = createRule<Options, MessageIds>({
       'Program:exit'() {
         for (const node of elementsToCheck) {
           const attributes = node.attributes.filter(
-            (attr): attr is TSESTree.JSXAttribute => attr.type === 'JSXAttribute'
+            (attr): attr is TSESTree.JSXAttribute =>
+              attr.type === 'JSXAttribute'
           );
 
           // Skip if already has hitSlop
@@ -227,13 +256,20 @@ export = createRule<Options, MessageIds>({
           const { width, height } = styleProps;
 
           // Check if either dimension is below threshold
-          if ((width !== undefined && width < minSize) ||
-              (height !== undefined && height < minSize)) {
-
+          if (
+            (width !== undefined && width < minSize) ||
+            (height !== undefined && height < minSize)
+          ) {
             // Calculate required hitSlop to reach minSize
             // hitSlop adds padding on all sides, so total touchable area = size + (hitSlop * 2)
-            const widthHitSlop = width !== undefined ? Math.max(0, Math.ceil((minSize - width) / 2)) : 0;
-            const heightHitSlop = height !== undefined ? Math.max(0, Math.ceil((minSize - height) / 2)) : 0;
+            const widthHitSlop =
+              width !== undefined
+                ? Math.max(0, Math.ceil((minSize - width) / 2))
+                : 0;
+            const heightHitSlop =
+              height !== undefined
+                ? Math.max(0, Math.ceil((minSize - height) / 2))
+                : 0;
             const requiredHitSlop = Math.max(widthHitSlop, heightHitSlop);
 
             context.report({

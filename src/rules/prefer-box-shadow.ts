@@ -2,7 +2,8 @@ import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
+  (name) =>
+    `https://github.com/enzomanuelmangano/eslint-plugin-refined/blob/main/docs/rules/${name}.md`
 );
 
 type MessageIds = 'preferBoxShadow';
@@ -21,12 +22,14 @@ export = createRule<Options, MessageIds>({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer boxShadow over shadowColor, shadowOffset, shadowOpacity, and shadowRadius',
+      description:
+        'Prefer boxShadow over shadowColor, shadowOffset, shadowOpacity, and shadowRadius',
     },
     fixable: 'code',
     schema: [],
     messages: {
-      preferBoxShadow: 'Use boxShadow instead of individual shadow properties (shadowColor, shadowOffset, shadowOpacity, shadowRadius) for better performance and simpler syntax',
+      preferBoxShadow:
+        'Use boxShadow instead of individual shadow properties (shadowColor, shadowOffset, shadowOpacity, shadowRadius) for consistency across platforms and simpler syntax',
     },
   },
   defaultOptions: [],
@@ -46,17 +49,28 @@ export = createRule<Options, MessageIds>({
       return undefined;
     }
 
-    function parseShadowOffset(offsetNode: TSESTree.Node): { width?: number; height?: number } {
+    function parseShadowOffset(offsetNode: TSESTree.Node): {
+      width?: number;
+      height?: number;
+    } {
       if (offsetNode.type === 'ObjectExpression') {
         let width: number | undefined;
         let height: number | undefined;
 
         for (const prop of offsetNode.properties) {
           if (prop.type === 'Property' && prop.key.type === 'Identifier') {
-            if (prop.key.name === 'width' && prop.value.type === 'Literal' && typeof prop.value.value === 'number') {
+            if (
+              prop.key.name === 'width' &&
+              prop.value.type === 'Literal' &&
+              typeof prop.value.value === 'number'
+            ) {
               width = prop.value.value;
             }
-            if (prop.key.name === 'height' && prop.value.type === 'Literal' && typeof prop.value.value === 'number') {
+            if (
+              prop.key.name === 'height' &&
+              prop.value.type === 'Literal' &&
+              typeof prop.value.value === 'number'
+            ) {
               height = prop.value.value;
             }
           }
@@ -68,14 +82,20 @@ export = createRule<Options, MessageIds>({
     }
 
     function parseOpacity(opacityNode: TSESTree.Node): number | undefined {
-      if (opacityNode.type === 'Literal' && typeof opacityNode.value === 'number') {
+      if (
+        opacityNode.type === 'Literal' &&
+        typeof opacityNode.value === 'number'
+      ) {
         return opacityNode.value;
       }
       return undefined;
     }
 
     function parseRadius(radiusNode: TSESTree.Node): number | undefined {
-      if (radiusNode.type === 'Literal' && typeof radiusNode.value === 'number') {
+      if (
+        radiusNode.type === 'Literal' &&
+        typeof radiusNode.value === 'number'
+      ) {
         return radiusNode.value;
       }
       return undefined;
@@ -142,7 +162,13 @@ export = createRule<Options, MessageIds>({
     }
 
     function buildBoxShadow(values: ShadowValues): string | null {
-      const { color = '#000', offsetX = 0, offsetY = 0, opacity = 1, radius = 0 } = values;
+      const {
+        color = '#000',
+        offsetX = 0,
+        offsetY = 0,
+        opacity = 1,
+        radius = 0,
+      } = values;
 
       const finalColor = opacity !== 1 ? convertToRgba(color, opacity) : color;
       return `${offsetX}px ${offsetY}px ${radius}px ${finalColor}`;
@@ -186,7 +212,7 @@ export = createRule<Options, MessageIds>({
       // Only report if we have meaningful shadow properties
       // Skip if only elevation (Android-specific, can't be meaningfully converted without other properties)
       const hasNonElevationShadow = Array.from(shadowProps.keys()).some(
-        prop => prop !== 'elevation'
+        (prop) => prop !== 'elevation'
       );
 
       if (!hasNonElevationShadow || !firstShadowProp) {
@@ -267,7 +293,11 @@ export = createRule<Options, MessageIds>({
               if (shadowProperties.has(propName)) {
                 // Add boxShadow in place of the first shadow property we encounter
                 // Prefer shadowColor position if it exists, otherwise use first shadow prop
-                if (!boxShadowAdded && (propName === 'shadowColor' || !shadowProps.has('shadowColor'))) {
+                if (
+                  !boxShadowAdded &&
+                  (propName === 'shadowColor' ||
+                    !shadowProps.has('shadowColor'))
+                ) {
                   newProps.push(`boxShadow: '${boxShadowValue}'`);
                   boxShadowAdded = true;
                 }
@@ -289,7 +319,10 @@ export = createRule<Options, MessageIds>({
             return null;
           }
 
-          const textBetween = sourceCode.text.substring(openBrace.range[1], firstProp.range[0]);
+          const textBetween = sourceCode.text.substring(
+            openBrace.range[1],
+            firstProp.range[0]
+          );
           const match = textBetween.match(/\n(\s+)/);
           const indent: string = match?.[1] ?? '  ';
 
@@ -301,8 +334,13 @@ export = createRule<Options, MessageIds>({
 
           // Check if the original last property had a trailing comma
           const lastProp = allProps[allProps.length - 1];
-          const tokenAfterLast = lastProp ? sourceCode.getTokenAfter(lastProp) : null;
-          const hasTrailingComma = tokenAfterLast && tokenAfterLast.type === 'Punctuator' && tokenAfterLast.value === ',';
+          const tokenAfterLast = lastProp
+            ? sourceCode.getTokenAfter(lastProp)
+            : null;
+          const hasTrailingComma =
+            tokenAfterLast &&
+            tokenAfterLast.type === 'Punctuator' &&
+            tokenAfterLast.value === ',';
 
           // Replace the entire properties section
           const closeBrace = sourceCode.getLastToken(node);
