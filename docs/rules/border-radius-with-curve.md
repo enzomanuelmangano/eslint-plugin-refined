@@ -1,6 +1,6 @@
 # border-radius-with-curve
 
-Enforces using `borderCurve: 'continuous'` when borderRadius properties are used for better visual quality on iOS.
+When using borderRadius properties, you should also specify `borderCurve: 'continuous'` for beautiful rounded corners on iOS.
 
 ## Examples
 

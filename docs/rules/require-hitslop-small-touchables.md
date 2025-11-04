@@ -1,6 +1,6 @@
 # require-hitslop-small-touchables
 
-Requires `hitSlop` prop on touchable elements that are smaller than a configurable threshold (default: 40pt) to improve tap target size and accessibility. This rule detects touchable elements by checking for press handler props (`onPress`, `onLongPress`, etc.) rather than specific component names, making it work with any custom touchable component.
+Touchable elements smaller than the recommended minimum size (default: 40pt) should have `hitSlop` for better accessibility. This rule detects touchable elements by checking for press handler props (`onPress`, `onLongPress`, etc.) rather than specific component names, making it work with any custom touchable component.
 
 ## Options
 

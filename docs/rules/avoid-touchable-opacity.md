@@ -1,6 +1,6 @@
 # avoid-touchable-opacity
 
-Discourages usage of `TouchableOpacity` component in favor of more performant alternatives.
+Avoid using `TouchableOpacity` - you should care about your touchables and use more performant alternatives.
 
 ## Examples
 

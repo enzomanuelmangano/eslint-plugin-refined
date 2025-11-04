@@ -1,6 +1,6 @@
 # spring-config-consistency
 
-Enforces that spring animations either have all three spring physics parameters (`mass`, `damping`, `stiffness`) or none of them. This ensures consistent spring animations and prevents incomplete configurations.
+Spring animation must include all three spring physics params (`mass`, `damping`, `stiffness`) or none of them. This ensures consistent spring animations and prevents incomplete configurations.
 
 This rule works with:
 - `withSpring` calls (ignores calls using `duration` or `dampingRatio` as these are alternative modes)

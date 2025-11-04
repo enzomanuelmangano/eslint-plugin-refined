@@ -1,6 +1,6 @@
 # prefer-hairline-width
 
-Suggests using `StyleSheet.hairlineWidth` for border widths less than or equal to a configurable threshold (default: 0.3) to ensure consistent thin borders across devices.
+Use `StyleSheet.hairlineWidth` instead of hardcoded values for consistent thin borders across devices. By default, this rule triggers for border width values less than or equal to 0.3.
 
 ## Options
 
