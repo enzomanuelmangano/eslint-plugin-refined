@@ -32,11 +32,11 @@ ruleTester.run('prefer-box-shadow', rule, {
         };
       `,
     },
-    // Only shadowRadius without shadowColor
+    // Only elevation without other shadow properties (Android-specific)
     {
       code: `
         const styles = {
-          shadowRadius: 10
+          elevation: 5
         };
       `,
     },
@@ -227,6 +227,64 @@ ruleTester.run('prefer-box-shadow', rule, {
           paddingLeft: 15,
           paddingRight: 20,
           boxShadow: '0px 5px 10px rgba(0, 0, 0, 0.2)',
+        };
+      `,
+    },
+    // shadowRadius alone (no shadowColor) - should use default #000
+    {
+      code: `
+        const styles = {
+          shadowRadius: 10
+        };
+      `,
+      errors: [{ messageId: 'preferBoxShadow' }],
+      output: `
+        const styles = {
+          boxShadow: '0px 0px 10px #000'
+        };
+      `,
+    },
+    // shadowOpacity alone (no shadowColor) - should use default #000 with opacity
+    {
+      code: `
+        const styles = {
+          shadowOpacity: 0.5
+        };
+      `,
+      errors: [{ messageId: 'preferBoxShadow' }],
+      output: `
+        const styles = {
+          boxShadow: '0px 0px 0px rgba(0, 0, 0, 0.5)'
+        };
+      `,
+    },
+    // shadowOffset alone (no shadowColor) - should use default #000
+    {
+      code: `
+        const styles = {
+          shadowOffset: { width: 2, height: 4 }
+        };
+      `,
+      errors: [{ messageId: 'preferBoxShadow' }],
+      output: `
+        const styles = {
+          boxShadow: '2px 4px 0px #000'
+        };
+      `,
+    },
+    // Multiple shadow properties without shadowColor - should use default #000
+    {
+      code: `
+        const styles = {
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+        };
+      `,
+      errors: [{ messageId: 'preferBoxShadow' }],
+      output: `
+        const styles = {
+          boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
         };
       `,
     },

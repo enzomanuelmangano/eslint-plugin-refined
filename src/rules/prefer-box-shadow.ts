@@ -142,11 +142,7 @@ export = createRule<Options, MessageIds>({
     }
 
     function buildBoxShadow(values: ShadowValues): string | null {
-      const { color, offsetX = 0, offsetY = 0, opacity = 1, radius = 0 } = values;
-
-      if (!color) {
-        return null;
-      }
+      const { color = '#000', offsetX = 0, offsetY = 0, opacity = 1, radius = 0 } = values;
 
       const finalColor = opacity !== 1 ? convertToRgba(color, opacity) : color;
       return `${offsetX}px ${offsetY}px ${radius}px ${finalColor}`;
@@ -187,8 +183,13 @@ export = createRule<Options, MessageIds>({
         }
       }
 
-      // Only report if shadowColor is present
-      if (!shadowProps.has('shadowColor') || !firstShadowProp) {
+      // Only report if we have meaningful shadow properties
+      // Skip if only elevation (Android-specific, can't be meaningfully converted without other properties)
+      const hasNonElevationShadow = Array.from(shadowProps.keys()).some(
+        prop => prop !== 'elevation'
+      );
+
+      if (!hasNonElevationShadow || !firstShadowProp) {
         return;
       }
 
@@ -206,24 +207,37 @@ export = createRule<Options, MessageIds>({
 
       const colorProp = shadowProps.get('shadowColor');
       if (colorProp) {
-        values.color = parseColor(colorProp.value);
+        const parsedColor = parseColor(colorProp.value);
+        if (parsedColor) {
+          values.color = parsedColor;
+        }
       }
 
       const offsetProp = shadowProps.get('shadowOffset');
       if (offsetProp) {
         const offset = parseShadowOffset(offsetProp.value);
-        values.offsetX = offset.width;
-        values.offsetY = offset.height;
+        if (offset.width !== undefined) {
+          values.offsetX = offset.width;
+        }
+        if (offset.height !== undefined) {
+          values.offsetY = offset.height;
+        }
       }
 
       const opacityProp = shadowProps.get('shadowOpacity');
       if (opacityProp) {
-        values.opacity = parseOpacity(opacityProp.value);
+        const parsedOpacity = parseOpacity(opacityProp.value);
+        if (parsedOpacity !== undefined) {
+          values.opacity = parsedOpacity;
+        }
       }
 
       const radiusProp = shadowProps.get('shadowRadius');
       if (radiusProp) {
-        values.radius = parseRadius(radiusProp.value);
+        const parsedRadius = parseRadius(radiusProp.value);
+        if (parsedRadius !== undefined) {
+          values.radius = parsedRadius;
+        }
       }
 
       const boxShadowValue = buildBoxShadow(values);
@@ -251,8 +265,9 @@ export = createRule<Options, MessageIds>({
 
               // Skip shadow properties
               if (shadowProperties.has(propName)) {
-                // Add boxShadow in place of shadowColor (not other shadow props like elevation)
-                if (!boxShadowAdded && propName === 'shadowColor') {
+                // Add boxShadow in place of the first shadow property we encounter
+                // Prefer shadowColor position if it exists, otherwise use first shadow prop
+                if (!boxShadowAdded && (propName === 'shadowColor' || !shadowProps.has('shadowColor'))) {
                   newProps.push(`boxShadow: '${boxShadowValue}'`);
                   boxShadowAdded = true;
                 }
